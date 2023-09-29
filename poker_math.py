@@ -1,36 +1,66 @@
 import random
 
 # deck is the dictionary of a complete 52-card deck with no cards removed
-deck = {(1, 1): '2c', (1, 2): '2d', (1, 3): '2h', (1, 4): '2s',
-        (2, 1): '3c', (2, 2): '3d', (2, 3): '3h', (2, 4): '3s',
-        (3, 1): '4c', (3, 2): '4d', (3, 3): '4h', (3, 4): '4s',
-        (4, 1): '5c', (4, 2): '5d', (4, 3): '5h', (4, 4): '5s',
-        (5, 1): '6c', (5, 2): '6d', (5, 3): '6h', (5, 4): '6s',
-        (6, 1): '7c', (6, 2): '7d', (6, 3): '7h', (6, 4): '7s',
-        (7, 1): '8c', (7, 2): '8d', (7, 3): '8h', (7, 4): '8s',
-        (8, 1): '9c', (8, 2): '9d', (8, 3): '9h', (8, 4): '9s',
-        (9, 1): 'Tc', (9, 2): 'Td', (9, 3): 'Th', (9, 4): 'Ts',
+deck = {(1, 1):  '2c', (1, 2):  '2d', (1, 3):  '2h', (1, 4):  '2s',
+        (2, 1):  '3c', (2, 2):  '3d', (2, 3):  '3h', (2, 4):  '3s',
+        (3, 1):  '4c', (3, 2):  '4d', (3, 3):  '4h', (3, 4):  '4s',
+        (4, 1):  '5c', (4, 2):  '5d', (4, 3):  '5h', (4, 4):  '5s',
+        (5, 1):  '6c', (5, 2):  '6d', (5, 3):  '6h', (5, 4):  '6s',
+        (6, 1):  '7c', (6, 2):  '7d', (6, 3):  '7h', (6, 4):  '7s',
+        (7, 1):  '8c', (7, 2):  '8d', (7, 3):  '8h', (7, 4):  '8s',
+        (8, 1):  '9c', (8, 2):  '9d', (8, 3):  '9h', (8, 4):  '9s',
+        (9, 1):  'Tc', (9, 2):  'Td', (9, 3):  'Th', (9, 4):  'Ts',
         (10, 1): 'Jc', (10, 2): 'Jd', (10, 3): 'Jh', (10, 4): 'Js',
         (11, 1): 'Qc', (11, 2): 'Qd', (11, 3): 'Qh', (11, 4): 'Qs',
         (12, 1): 'Kc', (12, 2): 'Kd', (12, 3): 'Kh', (12, 4): 'Ks',
         (13, 1): 'Ac', (13, 2): 'Ad', (13, 3): 'Ah', (13, 4): 'As'}
 
-# if you specify a card in human readable card form (e.g. As, Kd, 2c, etc.),
-# find_deck_key returns the dictionary key that is the tuple associated with that human readable card
-def find_deck_key(deck, card):
-    return list(deck.keys())[list(deck.values()).index(card)]
-        
+
+hero_cards    = ['Ac', 'Th']
+opp1_cards    = ['Ad', 'Qh']
+
+# QA check of hero and opp1 hole card consistency
+if len(list(filter(lambda i: i in list(deck.values()), hero_cards))) != 2:
+    print('One or both hero cards are not legitimate! Please choose appropriate hole cards for hero.')
+    exit()
+
+if len(list(filter(lambda i: i in list(deck.values()), opp1_cards))) != 2:
+    print('One or both opp1 cards are not legitimate! Please choose appropriate hole cards for opp1.')
+    exit()
+
+if len(list(filter(lambda i: i in opp1_cards, hero_cards))) != 0:
+    print('There is an overlap of cards between hero and opp1 hole cards. Please re-enter hole cards for both hero and opp1.')
+    exit()
+
+# create separte lists that are the tuples associated with the human readable cards from the user's hero and opp1 hole card inputs
+#hero_card_keys = list(lambda card: deck.keys()[list(deck.values()).index(card)])
+hero_card_keys = []
+opp1_card_keys = []
+
+for card in hero_cards:
+    hero_card_keys.append(list(deck.keys())[list(deck.values()).index(card)])
+
+for card in opp1_cards:
+    opp1_card_keys.append(list(deck.keys())[list(deck.values()).index(card)])
+
 # deck_50 is a special deck that that has the hero's hole cards removed so that you can observe
-# the distribution of outcomes after the flop in isolation (that is without anyone else having been dealt hole cards)
+# the distribution of outcomes after the flop in isolation (i.e. without anyone else having been dealt hole cards)
 deck_50 = deck.copy()
+
+for card in hero_card_keys:
+    del deck_50[card]
+
+hero_hands = []
+
+while len(hero_hands) < 100:
+    
+
+
+exit()
 
 
 deck_48 = deck.copy()
 
-
-
-hero_card_keys = []
-villan_card_keys = []
 
 sf = 0
 foak = 0
@@ -42,27 +72,8 @@ tp = 0
 op = 0
 hc = 0
 
-hero_cards = ['Ac', 'Tc']
-villan_cards = ['Ah', 'Qd']
-
-for card in hero_cards:
-    hero_card_keys.append(find_deck_key(deck, card))
-
-for card in villan_cards:
-    villan_card_keys.append(find_deck_key(deck, card))
-
-for card in hero_cards:
-    if card in villan_cards:
-        print('Hero and Villian cards are not legitimate!')
-        break
 
 
-for card in hero_card_keys:
-    del deck_50[card]
-    del deck_48[card]
-
-for card in villan_card_keys:
-    del deck_48[card]
 
 flops_50 = []
 
