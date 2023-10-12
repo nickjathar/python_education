@@ -1,6 +1,6 @@
 import time
 import random
-from collections import Counter
+import itertools
 import numpy as np
 
 # deck is the dictionary of a complete 52-card deck with no cards removed
@@ -18,23 +18,48 @@ deck = {(1, 1):  '2c', (1, 2):  '2d', (1, 3):  '2h', (1, 4):  '2s',
         (12, 1): 'Kc', (12, 2): 'Kd', (12, 3): 'Kh', (12, 4): 'Ks',
         (13, 1): 'Ac', (13, 2): 'Ad', (13, 3): 'Ah', (13, 4): 'As'}
 
-rh = {1: 0, 2: 0, 3: 0,  4:  0, 5:  0, 6:  0, 7: 0,
-      8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
+rh = {0: 0, 1: 0, 2: 0, 3: 0,  4:  0, 5:  0, 6:  0,
+      7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0}
 
 sh = {1: 0, 2: 0, 3: 0, 4: 0}
 
-find_flush = ''
-find_flush_iterations = 0
+hand_rank = {1:  'Two',   2:  'Three', 3:  'Four', 4: 'Five', 5:  'Six',
+             6:  'Seven', 7:  'Eight', 8:  'Nine', 9: 'Ten',  10: 'Jack',
+             11: 'Queen', 12: 'King',  13: 'Ace'}
 
-def what_is_hand(hand, rh, sh):
+poker_hands = {'Straight Flush': 0, 'Four of a Kind': 0, 'Full House': 0,
+               'Flush': 0, 'Straight': 0, 'Three of a Kind': 0,
+               'Two Pair': 0, 'One Pair': 0, 'High Card': 0}
+
+def is_wheel(hand):
+    
+    hand = sorted(hand, reverse=True)
+    hand_ranks = []
+    
+    for card in hand:
+        hand_ranks.append(card[0])
+
+    if hand_ranks[0]==13 and hand_ranks[1]==4 and hand_ranks[2]==3 and hand_ranks[3]==2 and hand_ranks[4]==1:
+        pop_card = hand.pop(0)
+        hand.append((0, pop_card[1]))
+
+    return hand
+
+def what_is_hand(hand, rh, sh, hr):
     
     rhc = rh.copy()
     shc = sh.copy()
+
+    hand = is_wheel(hand)
 
     urv = 0
     usv = 0
     maxrv = 0
     minrv = 13
+
+    pair = 0
+    trips = 0
+    quads = 0
 
     # put rank density and suit density for the hand into rhc and shc respectively
     for rank, suit in hand:
@@ -46,8 +71,14 @@ def what_is_hand(hand, rh, sh):
             urv += 1
             if rank > maxrv:
                 maxrv = rank
+
             if rank < minrv:
                 minrv = rank
+
+            if count == 2:
+                pair += 1
+            elif count == 3:
+                trips += 1
     
     for suit, count in shc.items():
         if count != 0:
@@ -57,51 +88,32 @@ def what_is_hand(hand, rh, sh):
 
     if usv == 1:
         if rangerv == 4:
-            return 'Straight Flush'
+            return ('Straight Flush', hr[maxrv] + ' High')
         else:
-            return 'Flush'
+            return ('Flush', hr[maxrv] + ' High')
+        
+    if (rangerv == 4) and (urv == 5):
+        return ('Straight', hr[maxrv] + ' High')
     
-    return 'Pending more logic'
-
-    # hand_rank = []
-    # hand_suit = []
+    if urv == 2:
+        if pair == 1:
+            return ('Full House', '')
+        else:
+            return ('Four of a Kind', '')
+        
+    if urv == 3:
+        if pair == 2:
+            return ('Two Pair', '')
+        else:
+            return ('Three of a Kind', '')
     
-    # for card in hand:
-    #     hand_rank.append(card[0])
-    #     hand_suit.append(card[1])
+    if urv == 4:
+        return ('One Pair', '')
+    else:
+        return ('High Card', '')
 
-    # hand_rank = sorted(hand_rank, reverse=True)
-    # hand_suit = sorted(hand_suit, reverse=True)
-    # unique_ranks = len(Counter(hand_rank).keys())
-
-    # if there are 2 unique ranks you either have a four of a kind OR a full house
-
-
-    # if (hand_suit[0] == hand_suit[4]) and ((hand_rank[0] - hand_rank[4]) == 4):
-    #     hand_is = 'Straight Flush'
-    # elif (hand_rank[0] == hand_rank[3]) or (hand_rank[1] == hand_rank[4]):
-    #     hand_is = 'Four of a Kind'
-    # elif (hand_rank[0] == hand_rank[2]) and (hand_rank[3] == hand_rank[4]) or (hand_rank[0] == hand_rank[1]) and (hand_rank[2] == hand_rank[4]):
-    #     hand_is = 'Full House'
-    # elif (hand_suit[0] == hand_suit[4]):
-    #     hand_is = 'Flush'
-    # elif (hand_rank[0] - hand_rank[4]) == 4:
-    #     hand_is = 'Straight'
-    # elif (hand_rank[0] == hand_rank[2]) or (hand_rank[1] == hand_rank[3]) or (hand_rank[2] == hand_rank[4]):
-    #     hand_is = 'Three of a Kind'
-    # elif (hand_rank[0] == hand_rank[1]) and (hand_rank[2] == hand_rank[3]) or (hand_rank[1] == hand_rank[2]) and (hand_rank[3] == hand_rank[3]) or (hand_rank[0] == hand_rank[1]) and (hand_rank[3] == hand_rank[4]):
-    #     hand_is = 'Two Pair'
-    # elif (hand_rank[0] == hand_rank[1]) or (hand_rank[1] == hand_rank[2]) or (hand_rank[2] == hand_rank[3]) or (hand_rank[3] == hand_rank[4]):
-    #     hand_is = 'One Pair'
-    # else:
-    #     hand_is = "High Card"
-
-    # print(unique_ranks)
-
-    #return unique_ranks
-    
-# draw two hole cards
-while find_flush != 'Straight Flush':
+for i in range(5000000):
+    # draw two hole cards   
     hole1 = random.sample(list(deck.keys()), 2)
 
     deck_50 = deck.copy()
@@ -111,11 +123,37 @@ while find_flush != 'Straight Flush':
 
     flop = random.sample(list(deck_50.keys()), 3)
 
-    find_flush = what_is_hand(hole1 + flop, rh, sh)
-    find_flush_iterations += 1
+    resolve_hand = what_is_hand(hole1 + flop, rh, sh, hand_rank)
+    poker_hands[resolve_hand[0]] += 1
+    
+    if resolve_hand[0] == 'Straight' and resolve_hand[1] == 'Five High':
+        print('Hole Cards:', hole1, 'with Flop', flop, 'is', resolve_hand)
 
-print('The hand:', hole1 + flop, 'is', what_is_hand(hole1 + flop, rh, sh))
-print('It took', find_flush_iterations, 'to draw to this hand.')
+#print(list((itertools.combinations(hole1+flop, 3))))
+#print(len(list((itertools.combinations(hole1+flop, 3)))))
+#print(poker_hands)
+
+exit()
+
+find_hand = ''
+hand_iterations = 0
+
+while find_hand != 'Straight Flush':
+    # draw two hole cards   
+    hole1 = random.sample(list(deck.keys()), 2)
+
+    deck_50 = deck.copy()
+
+    for card in hole1:
+        del deck_50[card]
+
+    flop = random.sample(list(deck_50.keys()), 3)
+
+    find_hand = what_is_hand(hole1 + flop, rh, sh, hand_rank)
+    hand_iterations += 1
+
+print('Hole Cards:', hole1, 'with Flop', flop, 'is', what_is_hand(hole1 + flop, rh, sh, hand_rank))
+print('It took', hand_iterations, 'to draw to this hand.')
 
 
 # hole_cards = []
